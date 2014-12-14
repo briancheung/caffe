@@ -10,6 +10,7 @@ layers {
   }
   transform_param {
     mean_file: "examples/cifar10/mean.binaryproto"
+    scale: 0.00390625
   }
   include: { phase: TRAIN }
 }
@@ -24,6 +25,7 @@ layers {
   }
   transform_param {
     mean_file: "examples/cifar10/mean.binaryproto"
+    scale: 0.00390625
   }
   include: { phase: TEST }
 }
@@ -133,7 +135,7 @@ layers {
     stride: 1
     weight_filler {
       type: "gaussian"
-      std: 0.00001
+      std: 0.01
     }
     bias_filler {
       type: "constant"
@@ -160,7 +162,7 @@ layers {
     stride: 1
     weight_filler {
       type: "gaussian"
-      std: 0.00001
+      std: 0.01
     }
     bias_filler {
       type: "constant"
@@ -190,7 +192,7 @@ layers {
     stride: 1
     weight_filler {
       type: "gaussian"
-      std: 0.00001
+      std: 0.01
     }
     bias_filler {
       type: "constant"
@@ -198,10 +200,12 @@ layers {
   }
 }
 layers {
-  name: "loss"
+  name: "euclidean_loss"
   bottom: "deconv3"
   bottom: "data"
   type: EUCLIDEAN_LOSS
+  loss_weight: 0.1
+  top: "euclidean_loss"
 }
 
 
@@ -212,7 +216,7 @@ layers {
   top: "ip1"
   blobs_lr: 1
   blobs_lr: 2
-  weight_decay: 250
+  weight_decay: 0
   weight_decay: 0
   inner_product_param {
     num_output: 10
@@ -234,9 +238,10 @@ layers {
   include: { phase: TEST }
 }
 layers {
-  name: "loss"
+  name: "softmax_loss"
   type: SOFTMAX_LOSS
   bottom: "ip1"
   bottom: "label"
-  top: "loss"
+  top: "softmax_loss"
+  loss_weight: 1.0
 }
