@@ -268,6 +268,7 @@ message LayerParameter {
     TANH = 23;
     WINDOW_DATA = 24;
     THRESHOLD = 31;
+    XCOV_LOSS = 1002;
   }
   optional LayerType type = 5; // the layer type from the enum above
 
@@ -326,6 +327,7 @@ message LayerParameter {
   optional TanHParameter tanh_param = 37;
   optional ThresholdParameter threshold_param = 25;
   optional WindowDataParameter window_data_param = 20;
+  optional XCovLossParameter xcov_loss_param = 104;
 
   // Parameters for data pre-processing.
   optional TransformationParameter transform_param = 36;
@@ -622,6 +624,12 @@ message MVNParameter {
 
   // This parameter can be set to true to perform DNN-like MVN
   optional bool across_channels = 2 [default = false];
+}
+
+// Message that stores parameters used by MVNLayer
+message XCovLossParameter {
+  // This parameter can be set to false to normalize mean only
+  optional bool do_stuff = 1 [default = true];
 }
 
 // Message that stores parameters used by PoolingLayer
