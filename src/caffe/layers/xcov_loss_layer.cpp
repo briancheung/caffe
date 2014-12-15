@@ -12,11 +12,11 @@ void XCovLossLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   top[0]->Reshape(bottom[0]->num(), bottom[0]->channels(),
       bottom[0]->height(), bottom[0]->width());
-  mean_.Reshape(bottom[0]->num(), bottom[0]->channels(),
-      1, 1);
+  mean_.Reshape(1, bottom[0]->channels(),
+      bottom[0]->height(), bottom[0]->width());
   temp_.Reshape(bottom[0]->num(), bottom[0]->channels(),
       bottom[0]->height(), bottom[0]->width());
-  sum_multiplier_.Reshape(1, bottom[0]->channels(), 1, 1);
+  sum_multiplier_.Reshape(bottom[0]->num(), 1, 1, 1);
   Dtype* multiplier_data = sum_multiplier_.mutable_cpu_data();
   caffe_set(sum_multiplier_.count(), Dtype(1), multiplier_data);
 }
@@ -30,12 +30,14 @@ void XCovLossLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   int dim = bottom[0]->count() / num;
 
   // calculate mean vector over batch
-  caffe_cpu_gemv<Dtype>(CblasTrans, dim, num, 1. / num, bottom_data,
+  caffe_cpu_gemv<Dtype>(CblasTrans, num, dim, 1. / num, bottom_data,
       sum_multiplier_.cpu_data(), 0., mean_.mutable_cpu_data());
 
   // broadcast and negative mean vector
   caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num, dim, 1, -1.,
-          mean_.cpu_data(), sum_multiplier_.cpu_data(), 0.,
+          sum_multiplier_.cpu_data(),
+          mean_.cpu_data(),
+          0.,
           temp_.mutable_cpu_data());
 
   // subtract mean

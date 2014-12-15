@@ -3,7 +3,7 @@
 #include <cstring>
 #include <vector>
 
-#include "cuda_runtime.h"
+//#include "cuda_runtime.h"
 #include "gtest/gtest.h"
 
 #include "caffe/blob.hpp"
@@ -16,7 +16,7 @@
 
 namespace caffe {
 
-extern cudaDeviceProp CAFFE_TEST_CUDA_PROP;
+//extern cudaDeviceProp CAFFE_TEST_CUDA_PROP;
 
 template <typename TypeParam>
 class DeconvolutionLayerTest : public MultiDeviceTest<TypeParam> {

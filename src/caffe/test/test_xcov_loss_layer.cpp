@@ -18,7 +18,7 @@ class XCovLossLayerTest : public MultiDeviceTest<TypeParam> {
   typedef typename TypeParam::Dtype Dtype;
  protected:
   XCovLossLayerTest()
-      : blob_bottom_(new Blob<Dtype>(2, 3, 1, 1)),
+      : blob_bottom_(new Blob<Dtype>(2, 3, 4, 5)),
         blob_top_(new Blob<Dtype>()) {
     // fill the values
     FillerParameter filler_param;
