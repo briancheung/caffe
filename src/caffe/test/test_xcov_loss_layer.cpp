@@ -67,7 +67,6 @@ TYPED_TEST(XCovLossLayerTest, TestForward) {
   }
 }
 
-/*
 TYPED_TEST(XCovLossLayerTest, TestGradient) {
   typedef typename TypeParam::Dtype Dtype;
   LayerParameter layer_param;
@@ -76,6 +75,5 @@ TYPED_TEST(XCovLossLayerTest, TestGradient) {
   checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
       this->blob_top_vec_);
 }
-*/
 
 }  // namespace caffe
