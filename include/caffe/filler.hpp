@@ -164,10 +164,7 @@ class TestLocalFiller : public Filler<Dtype> {
   explicit TestLocalFiller(const FillerParameter& param)
       : Filler<Dtype>(param) {}
   virtual void Fill(Blob<Dtype>* blob) {
-    LOG(INFO) << "Doing mutable cpu";
-    LOG(INFO) << "blobs" << blob;
     Dtype* data = blob->mutable_cpu_data();
-    LOG(INFO) << "Done Doing mutable cpu";
     CHECK_EQ(blob->channels(), 1);
 
     for (int n=0; n<blob->num(); n++) {
@@ -176,6 +173,19 @@ class TestLocalFiller : public Filler<Dtype> {
           *(data+blob->offset(n, 0, j, i)) = i;
         }
       }
+    }
+  }
+};
+
+template <typename Dtype>
+class CountFiller : public Filler<Dtype> {
+ public:
+  explicit CountFiller(const FillerParameter& param)
+      : Filler<Dtype>(param) {}
+  virtual void Fill(Blob<Dtype>* blob) {
+    Dtype* data = blob->mutable_cpu_data();
+    for (int i = 0; i < blob->count(); ++i) {
+      data[i] = i;
     }
   }
 };
@@ -200,6 +210,8 @@ Filler<Dtype>* GetFiller(const FillerParameter& param) {
     return new UniformFiller<Dtype>(param);
   } else if (type == "xavier") {
     return new XavierFiller<Dtype>(param);
+  } else if (type == "count") {
+    return new CountFiller<Dtype>(param);
   } else if (type == "test_local") {
     return new TestLocalFiller<Dtype>(param);
   } else {

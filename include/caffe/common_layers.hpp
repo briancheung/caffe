@@ -328,13 +328,15 @@ class XCovLossLayer : public Layer<Dtype> {
  public:
   explicit XCovLossLayer(const LayerParameter& param)
       : Layer<Dtype>(param) {}
+  virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+      const vector<Blob<Dtype>*>& top);
   virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
 
   virtual inline LayerParameter_LayerType type() const {
     return LayerParameter_LayerType_XCOV_LOSS;
   }
-  virtual inline int ExactNumBottomBlobs() const { return 1; }
+  virtual inline int ExactNumBottomBlobs() const { return 2; }
   virtual inline int ExactNumTopBlobs() const { return 1; }
 
  protected:
@@ -347,7 +349,9 @@ class XCovLossLayer : public Layer<Dtype> {
   virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
      const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
 
-  Blob<Dtype> mean_, temp_;
+  vector<Blob<Dtype>*> mean_vec_, temp_vec_;
+  Blob<Dtype> mean_0_, mean_1_;
+  Blob<Dtype> temp_0_, temp_1_;
 
   /// sum_multiplier is used to carry out sum using BLAS
   Blob<Dtype> sum_multiplier_;
