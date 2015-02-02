@@ -18,8 +18,8 @@ class XCovLossLayerTest : public MultiDeviceTest<TypeParam> {
   typedef typename TypeParam::Dtype Dtype;
  protected:
   XCovLossLayerTest()
-      : blob_bottom_0_(new Blob<Dtype>(3, 3, 1, 1)),
-        blob_bottom_1_(new Blob<Dtype>(3, 4, 1, 1)),
+      : blob_bottom_0_(new Blob<Dtype>(2, 3, 1, 1)),
+        blob_bottom_1_(new Blob<Dtype>(2, 5, 1, 1)),
         blob_top_(new Blob<Dtype>()) {
     // fill the values
     FillerParameter filler_param;
@@ -53,11 +53,10 @@ TYPED_TEST(XCovLossLayerTest, TestForward) {
 
   for (int i = 0; i < this->blob_top_->count(); i++) {
     Dtype val = *(this->blob_top_->cpu_data() + i);
-    EXPECT_EQ(val, 24);
+    EXPECT_EQ(val, 3.75);
   }
 }
 
-/*
 TYPED_TEST(XCovLossLayerTest, TestGradient) {
   typedef typename TypeParam::Dtype Dtype;
   LayerParameter layer_param;
@@ -66,6 +65,5 @@ TYPED_TEST(XCovLossLayerTest, TestGradient) {
   checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
       this->blob_top_vec_);
 }
-*/
 
 }  // namespace caffe
