@@ -243,7 +243,7 @@ ifeq ($(OSX), 1)
 	CXX := /usr/bin/clang++
 	# clang throws this warning for cuda headers
 	WARNINGS += -Wno-unneeded-internal-declaration
-	ifneq ($(findstring 10.9, $(shell sw_vers -productVersion)),)
+	ifneq ($(findstring 10.10, $(shell sw_vers -productVersion)),)
 		CXXFLAGS += -stdlib=libstdc++
 		LINKFLAGS += -stdlib=libstdc++
 	endif
@@ -311,9 +311,10 @@ else
 		endif
 	else ifeq ($(OSX), 1)
 		# OS X packages atlas as the vecLib framework
-		BLAS_INCLUDE ?= /System/Library/Frameworks/vecLib.framework/Versions/Current/Headers/
+		BLAS_INCLUDE ?= /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/Accelerate.framework/Versions/Current/Frameworks/vecLib.framework/Headers/
+
 		LIBRARIES += cblas
-		LDFLAGS += -framework vecLib
+		LDFLAGS += -framework Accelerate
 	endif
 endif
 INCLUDE_DIRS += $(BLAS_INCLUDE)
