@@ -53,7 +53,7 @@ TYPED_TEST(XCovLossLayerTest, TestForward) {
 
   for (int i = 0; i < this->blob_top_->count(); i++) {
     Dtype val = *(this->blob_top_->cpu_data() + i);
-    EXPECT_EQ(val, 3.75);
+    EXPECT_EQ(val, 52.734375);
   }
 }
 

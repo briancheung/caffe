@@ -352,9 +352,12 @@ class XCovLossLayer : public Layer<Dtype> {
   vector<Blob<Dtype>*> mean_vec_, temp_vec_;
   Blob<Dtype> mean_0_, mean_1_;
   Blob<Dtype> temp_0_, temp_1_;
+  Blob<Dtype> xcov_;
+  Blob<Dtype> norm_;
 
   /// sum_multiplier is used to carry out sum using BLAS
-  Blob<Dtype> sum_multiplier_;
+  Blob<Dtype> batch_sum_multiplier_;
+  Blob<Dtype> xcov_sum_multiplier_;
 };
 
 
