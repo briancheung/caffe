@@ -27,12 +27,11 @@ void XCovLossLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
 
   int num = bottom[0]->num();
-  top[0]->Reshape(num, 1, 1, 1);
+  top[0]->Reshape(1, 1, 1, 1);
 
   int dim0 = bottom[0]->count() / num;
   int dim1 = bottom[1]->count() / num;
   xcov_.Reshape(dim0*dim1, 1, 1, 1);
-  norm_.Reshape(1, 1, 1, 1);
 
   for (int i = 0 ; i < bottom.size() ; i++ ) {
     mean_vec_[i]->Reshape(1, bottom[i]->channels(),
@@ -43,10 +42,6 @@ void XCovLossLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   batch_sum_multiplier_.Reshape(bottom[0]->num(), 1, 1, 1);
   Dtype* batch_multiplier_data = batch_sum_multiplier_.mutable_cpu_data();
   caffe_set(batch_sum_multiplier_.count(), Dtype(1), batch_multiplier_data);
-
-  xcov_sum_multiplier_.Reshape(dim0*dim1, 1, 1, 1);
-  Dtype* xcov_multiplier_data = xcov_sum_multiplier_.mutable_cpu_data();
-  caffe_set(xcov_sum_multiplier_.count(), Dtype(1), xcov_multiplier_data);
 }
 
 template <typename Dtype>
@@ -89,23 +84,17 @@ void XCovLossLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       xcov_.mutable_cpu_data());
 
   // square terms in xcov
-  caffe_mul<Dtype>(xcov_.count(), xcov_.cpu_data(), xcov_.cpu_data(),
-      xcov_.mutable_cpu_data());
+  Dtype dot = caffe_cpu_dot<Dtype>(xcov_.count(), xcov_.cpu_data(), xcov_.cpu_data());
 
-  // sum up squared terms in xcov, normalize by batch size
-  caffe_cpu_gemv<Dtype>(CblasNoTrans, 1, dim0 * dim1, 1. / num, xcov_.cpu_data(),
-      xcov_sum_multiplier_.cpu_data(), 0., norm_.mutable_cpu_data());
-
-  // broadcast across batch
-  caffe_cpu_gemv<Dtype>(CblasNoTrans, num, 1, 0.5, batch_sum_multiplier_.cpu_data(),
-      norm_.cpu_data(), 0., top_data);
+  Dtype loss = dot / Dtype(2);
+  top[0]->mutable_cpu_data()[0] = loss;
 }
 
 template <typename Dtype>
 void XCovLossLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
-  const Dtype* top_diff = top[0]->cpu_diff();
+  const Dtype top_diff = top[0]->cpu_diff()[0];
 
   Dtype* bottom_diff_0 = bottom[0]->mutable_cpu_diff();
   Dtype* bottom_diff_1 = bottom[1]->mutable_cpu_diff();
@@ -114,15 +103,15 @@ void XCovLossLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   int dim0 = bottom[0]->count() / num;
   int dim1 = bottom[1]->count() / num;
 
-  caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasTrans, num, dim0, dim1, 1./num,
+  caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasTrans, num, dim0, dim1, top_diff/num,
       temp_vec_[1]->cpu_data(),
-      top_diff,
+      xcov_.cpu_data(),
       0.,
       bottom_diff_0);
 
-  caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num, dim1, dim0, 1./num,
+  caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num, dim1, dim0, top_diff/num,
       temp_vec_[0]->cpu_data(),
-      top_diff,
+      xcov_.cpu_data(),
       0.,
       bottom_diff_1);
 }

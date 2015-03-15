@@ -185,8 +185,10 @@ class CountFiller : public Filler<Dtype> {
   virtual void Fill(Blob<Dtype>* blob) {
     Dtype* data = blob->mutable_cpu_data();
     for (int i = 0; i < blob->count(); ++i) {
-      data[i] = i;
+      data[i] = i/Dtype(blob->count());
+      std::cout << data[i] << " ";
     }
+    std::cout << std::endl;
   }
 };
 
